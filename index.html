@@ -56,11 +56,10 @@ body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;h
 #pbar{height:100%;background:var(--accent3);transition:width 1s linear;width:100%}
 
 /* ══ MAIN LAYOUT ══ */
-#main{flex:1;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;min-height:0}
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
 
 /* ── DISPLAY HALF (building animation) 40% ── */
-/* min-height = 7 floors × 60px each, so FH never drops below 60px */
-#display-half{flex:2;display:flex;flex-direction:column;overflow:hidden;min-height:420px;border-bottom:2px solid rgba(255,255,255,.12)}
+#display-half{flex:2;display:flex;flex-direction:column;overflow:hidden;min-height:0;border-bottom:2px solid rgba(255,255,255,.12)}
 
 /* ── GAME HALF (controls) 60% ── */
 #game-half{
@@ -134,10 +133,10 @@ body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;h
   display:flex;
   gap:1px;
   background:rgba(255,255,255,.04);
-  height:220px;
-  flex:0 0 220px;
-  min-height:220px;
-  max-height:220px;
+  height:180px;
+  flex:0 0 180px;
+  min-height:180px;
+  max-height:180px;
 }
 .lift-slot{position:relative;flex:1;background:var(--surface);display:flex;flex-direction:column;overflow:hidden;border-right:1px solid rgba(255,255,255,.04);transition:background .3s,opacity .3s}
 .lift-slot:last-child{border-right:none}
