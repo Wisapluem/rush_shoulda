@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lift Elevator</title>
-<script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=pGgl4fG4Qam_S4yzYs7DrVVgVa0BCbAihkKQC_AkOwM8zPkmw70_30JjKfwC5AvAr1SuFunEyghAJP3cdq2k0JUHhDlem5P9HpXwQnvnGbJghA1XQCgLPYknQsUZpUY0i8HS-H_ekbpMXm06SjhT-UXahOc8a63fZKmBfUNiC2UIRVyicEx1S7X3D4uJ52d0EvKO6UAuEzg-iD2XeycZNM4qlsmujrnlbO2GbrP8uQuxQ5Q7yRzWaoF2RU28J75SJNG7ZLVO2nmlE2WdRuf8uH8q50YNg9mMDalx6w-wpe4zGyLBcRkuu4X80j9VzBi5IbMBi5Iyy8L8Zy31ZbnYTg" charset="UTF-8"></script><style>
+<style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -343,7 +343,7 @@ body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;h
 /* ── DRAG & DROP ── */
 .char-card{cursor:grab}
 .char-card:active{cursor:grabbing}
-.char-card.dragging{opacity:.35;transform:scale(0.92)!important;border-color:var(--accent)!important}
+.char-card.dragging{opacity:.35;transform:scale(0.92)!important;border-color:var(--accent)!important;touch-action:none}
 .lift-pass.drag-over{background:rgba(0,229,255,.10);outline:2px dashed var(--accent);outline-offset:-3px}
 .lift-pass.drag-over-full{background:rgba(255,80,80,.10);outline:2px dashed #ff4444;outline-offset:-3px}
 /* ghost image helper */
@@ -743,6 +743,57 @@ function renderLobby(){
         lp.classList.remove('drag-over','drag-over-full');
       });
     });
+
+    // ── TOUCH DRAG SUPPORT ──
+    d.addEventListener('touchstart',e=>{
+      if(phase!=='assign') return;
+      e.stopPropagation();
+      // don't preventDefault here — allow scroll if user barely moves
+      dragCharId=c.id;
+      d.classList.add('dragging');
+      const touch=e.touches[0];
+      const ghost=document.getElementById('drag-ghost');
+      ghost.textContent=c.emoji;
+      ghost.style.cssText=`font-size:36px;left:${touch.clientX-18}px;top:${touch.clientY-36}px;display:block`;
+    },{passive:true});
+
+    d.addEventListener('touchmove',e=>{
+      if(dragCharId===null) return;
+      e.preventDefault(); // block page scroll while dragging
+      const touch=e.touches[0];
+      const ghost=document.getElementById('drag-ghost');
+      ghost.style.left=(touch.clientX-18)+'px';
+      ghost.style.top=(touch.clientY-36)+'px';
+      // highlight whichever lift-pass the finger is over
+      document.querySelectorAll('.lift-pass').forEach(lp=>{
+        const r=lp.getBoundingClientRect();
+        const over=touch.clientX>=r.left&&touch.clientX<=r.right&&touch.clientY>=r.top&&touch.clientY<=r.bottom;
+        const li=+lp.id.replace('lp-','');
+        const full=passengers[li].length>=MAX_CAP;
+        lp.classList.toggle('drag-over', over&&!full);
+        lp.classList.toggle('drag-over-full', over&&full);
+      });
+    },{passive:false});
+
+    d.addEventListener('touchend',e=>{
+      if(dragCharId===null) return;
+      const touch=e.changedTouches[0];
+      const ghost=document.getElementById('drag-ghost');
+      ghost.style.display='none';
+      d.classList.remove('dragging');
+      document.querySelectorAll('.lift-pass').forEach(lp=>{
+        lp.classList.remove('drag-over','drag-over-full');
+      });
+      // find which lift-pass the finger lifted from
+      const el=document.elementFromPoint(touch.clientX,touch.clientY);
+      const lp=el ? el.closest('.lift-pass') : null;
+      if(lp){
+        const li=+lp.id.replace('lp-','');
+        dropCharToLift(dragCharId,li);
+      }
+      dragCharId=null;
+    },{passive:true});
+
     el.appendChild(d);
   });
 
