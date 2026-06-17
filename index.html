@@ -58,16 +58,17 @@ body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;h
 /* ══ MAIN LAYOUT ══ */
 #main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
 
-/* ── DISPLAY HALF (building animation) 40% ── */
-#display-half{flex:2;display:flex;flex-direction:column;overflow:hidden;min-height:0;border-bottom:2px solid rgba(255,255,255,.12)}
+/* ── DISPLAY HALF (building animation) — takes all remaining space ── */
+#display-half{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;border-bottom:5px solid rgba(255,255,255,.25)}
 
-/* ── GAME HALF (controls) 60% ── */
+/* ── GAME HALF (controls) — fixed: lift-slots 180px + lobby 150px = 330px ── */
 #game-half{
-  flex:3;
+  flex:0 0 330px;
+  min-height:330px;
+  max-height:330px;
   display:flex;
   flex-direction:column;
   overflow:hidden;
-  min-height:0;
 }
 
 /* ── ROW 1: BUILDING VIEW ── */
@@ -275,10 +276,11 @@ body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;h
 
 /* LOBBY — fixed-height horizontal strip at the bottom of game half */
 #lobby-zone{
-  flex:1 1 auto;
-  min-height:0;
+  flex:0 0 150px;
+  min-height:150px;
+  max-height:150px;
   background:var(--surface);
-  border-top:1px solid rgba(255,255,255,.07);
+  border-top:5px solid rgba(255,255,255,.25);
   display:flex;
   flex-direction:column;
   overflow:hidden;
@@ -289,7 +291,7 @@ body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;h
   flex:1;
   overflow-x:auto;
   overflow-y:hidden;
-  padding:6px 8px;
+  padding:0 8px;
 
   display:flex;
   flex-direction:row;
@@ -526,10 +528,6 @@ body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;h
 
     <!-- LOBBY: horizontal strip at bottom -->
     <div id="lobby-zone">
-      <div class="zone-hdr">
-        <span>🚶 LOBBY FL1 (<span id="lobby-count">0</span>/6)</span>
-        <span class="zone-hdr-hint">ลาก / คลิก → ลิฟต์</span>
-      </div>
       <div id="lobby-chars"></div>
     </div>
 
@@ -798,7 +796,7 @@ function renderLobby(){
   });
 
   // update count
-  document.getElementById('lobby-count').textContent=visible.length;
+  const lcEl=document.getElementById('lobby-count'); if(lcEl) lcEl.textContent=visible.length;
   // soft-update classes on existing cards (no rebuild)
   updateLobbyClasses();
 }
