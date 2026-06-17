@@ -40,7 +40,7 @@ html{background:#000;height:100%}
 body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;height:100vh;height:100dvh;overflow:hidden;user-select:none;display:flex;flex-direction:column;width:min(412px,100vw);max-width:min(412px,100vw);margin:0 auto;position:relative}
 
 /* ── FOOTER AD ── */
-#ad-footer{height:56px;flex-shrink:0;background:var(--surface);border-top:1px solid rgba(255,255,255,.10);display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:11px;letter-spacing:.15em;opacity:.7}
+/* #ad-footer removed — replaced by in-game banner */
 
 
 /* ── TOPBAR ── */
@@ -450,6 +450,36 @@ body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;h
 }
 
 
+/* ── IN-GAME AD BANNER (ลอยอยู่เหนือคานบน) ── */
+#ad-banner{
+  position:absolute;
+  top:6px;
+  left:50%;
+  transform:translateX(-50%);
+  width:320px;
+  height:50px;
+  border:2px solid rgba(255,255,255,.55);
+  background:rgba(10,20,40,.75);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;letter-spacing:.12em;color:rgba(255,255,255,.45);
+  z-index:5;
+  box-shadow:0 2px 8px rgba(0,0,0,.4);
+  pointer-events:auto;
+}
+/* เสา 2 ต้น เชื่อมฐานป้าย → คานบน bld-shell */
+#ad-banner::before,
+#ad-banner::after{
+  content:'';
+  position:absolute;
+  top:100%;          /* เริ่มจากขอบล่างป้าย (ใต้ border) */
+  width:3px;
+  height:10px;       /* = gap 6px + เผื่อ overlap border คาน 4px */
+  background:rgba(255,255,255,.55);
+  box-shadow:0 0 4px rgba(0,180,255,.4);
+}
+#ad-banner::before{ left:40px; }   /* เสาซ้าย */
+#ad-banner::after{  right:40px; }  /* เสาขวา */
+
 /* ── BUILDING BG (ต่อไปใส่รูปพื้นหลังที่นี่) ── */
 #bld-bg{
   position:absolute;inset:0;
@@ -461,7 +491,7 @@ body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;h
 #bld-zone{position:relative}
 #bld-shell{
   position:absolute;
-  top:12px;left:16px;right:16px;bottom:0;
+  top:66px;left:16px;right:16px;bottom:0;
   z-index:1;
   overflow:hidden;
   /* เสาซ้าย/ขวา/คานบน */
@@ -529,6 +559,7 @@ body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;h
   <div id="display-half">
     <div id="bld-zone">
       <div id="bld-bg"></div>
+      <div id="ad-banner"><span id="ad-placeholder">ADVERTISEMENT</span></div>
       <div id="bld-shell">
         <div id="bld-floors"></div>
         <div id="lift-shafts"></div>
@@ -602,7 +633,7 @@ body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;h
 <div id="drag-ghost"></div>
 <div id="toast"></div>
 <!-- AD FOOTER -->
-<div id="ad-footer">[ ADVERTISEMENT SPACE — 150px ]</div>
+
 
 <script>
 window.__showMobileError=function(msg){
@@ -1014,11 +1045,13 @@ let FH=0;
 
 function buildBldView(){
   const zone=document.getElementById('bld-zone');
+  const shell=document.getElementById('bld-shell');
   const VISIBLE_FLOORS=TOTAL_FLOORS-1; // FL2–FL8 only, FL1 is Lobby
   const WALL=8;    // blueprint border thickness
   const SHELL_ML=16; // bld-shell left margin (matches CSS left:16px)
   const SHELL_MR=16; // bld-shell right margin (matches CSS right:16px)
-  FH=zone.clientHeight/VISIBLE_FLOORS;
+  // FH คำนวณจากความสูงของ bld-shell จริงๆ (ไม่ใช่ bld-zone) เพื่อให้ FL2-8 พอดีกับคาน
+  FH=shell.clientHeight/VISIBLE_FLOORS;
 
   const slotWidths=CFG.map((_,i)=>{
     const lpEl=document.getElementById(`lp-${i}`);
